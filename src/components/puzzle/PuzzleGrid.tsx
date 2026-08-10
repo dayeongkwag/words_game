@@ -214,6 +214,11 @@ export function PuzzleGrid({
                 tabIndex={-1}
                 onPointerDown={() => handleCellPointerDown(row, col)}
                 /*
+                 * click 은 mousedown 의 포커스 처리가 끝난 뒤에 온다.
+                 * 어떤 이유로든 pointerdown 에서 준 포커스를 놓쳤을 때의 안전망.
+                 */
+                onClick={focusInput}
+                /*
                  * mousedown 의 기본 동작은 "클릭된 요소에 포커스를 준다" 이다.
                  * 그대로 두면 pointerdown 에서 입력창에 준 포커스를 곧바로 빼앗아
                  * 키보드는 떠 있는데 글자가 아무 데도 들어가지 않는다. (실제 겪은 버그)

@@ -3,10 +3,13 @@
  *
  *   node scripts/probe-input.mjs [url]
  *
- * 코드만 읽어서는 알 수 없는 것들을 실제로 측정한다.
+ * 코드만 읽어서는 알 수 없는 것들을 실제 브라우저에서 측정한다.
  *  - 입력창이 현재 칸과 정확히 겹치는가
  *  - 칸을 눌렀을 때 포커스가 입력창으로 가는가
- *  - 한글 조합/확정이 격자에 반영되는가
+ *  - 한글이 격자에 들어가는가 (조합 이벤트가 오는 경우 / 오지 않는 iOS 방식 모두)
+ *
+ * 검사마다 새 게임으로 시작한다. 한 판에서 이어서 하면 틀린 입력이 쌓여
+ * 오답 한도로 게임이 끝나 버려 결과가 실행마다 달라진다.
  */
 import { chromium } from 'playwright';
 
@@ -18,185 +21,214 @@ const logs = [];
 page.on('console', (msg) => logs.push(`[${msg.type()}] ${msg.text()}`));
 page.on('pageerror', (err) => logs.push(`[pageerror] ${err.message}`));
 
-await page.goto(url, { waitUntil: 'networkidle' });
-await page.getByRole('button', { name: '새 퍼즐 풀기' }).click();
-await page.waitForSelector('#puzzle-grid', { timeout: 15000 });
-console.log('=== 1. 퍼즐 생성 완료 ===');
+let failures = 0;
+const check = (label, ok, detail = '') => {
+  if (!ok) failures++;
+  console.log(`  ${ok ? 'OK  ' : '문제'} ${label}${detail ? ` — ${detail}` : ''}`);
+};
 
-/** 입력창과 현재 커서 칸의 위치를 재서 비교한다. */
-const measure = () =>
-  page.evaluate(() => {
+/** 새 게임을 시작하고 격자가 준비될 때까지 기다린다. */
+async function newGame() {
+  await page.goto(url, { waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: '새 퍼즐 풀기' }).click();
+  await page.waitForSelector('#puzzle-grid', { timeout: 15000 });
+}
+
+/** 아직 비어 있는 칸들의 좌표. */
+const emptyCells = () =>
+  page.evaluate(() =>
+    [...document.querySelectorAll('#puzzle-grid button.cell')]
+      .filter((el) => !el.querySelector('.cell__letter')?.textContent)
+      .map((el) => `${el.dataset.row},${el.dataset.col}`),
+  );
+
+const cellAt = (at) => {
+  const [row, col] = at.split(',');
+  return page.locator(`#puzzle-grid [data-row="${row}"][data-col="${col}"]`);
+};
+
+const letterAt = (at) =>
+  page.evaluate((target) => {
+    const [row, col] = target.split(',');
+    return document
+      .querySelector(`#puzzle-grid [data-row="${row}"][data-col="${col}"] .cell__letter`)
+      ?.textContent;
+  }, at);
+
+const inputValue = () => page.evaluate(() => document.querySelector('.grid__input')?.value);
+
+// ── 1. 입력창 위치와 포커스 ──────────────────────────────────────
+console.log('\n=== 1. 입력창이 칸을 정확히 덮는가 / 탭하면 포커스가 가는가 ===');
+await newGame();
+{
+  const cells = await emptyCells();
+  await cellAt(cells[2]).click({ force: true });
+  await page.waitForTimeout(200);
+
+  const m = await page.evaluate(() => {
     const input = document.querySelector('.grid__input');
-    const slot = document.querySelector('.grid__input-slot');
-    const cursorCell = document.querySelector('#puzzle-grid button[aria-current="true"]');
+    const cursor = document.querySelector('#puzzle-grid button[aria-current="true"]');
     const box = (el) => {
-      if (!el) return null;
       const r = el.getBoundingClientRect();
       return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) };
     };
-    const style = input ? getComputedStyle(input) : null;
     return {
       input: box(input),
-      slot: box(slot),
-      cursorCell: box(cursorCell),
-      cursorAt: cursorCell ? `${cursorCell.dataset.row},${cursorCell.dataset.col}` : null,
-      css: style && {
-        color: style.color,
-        opacity: style.opacity,
-        visibility: style.visibility,
-        fontSize: style.fontSize,
-        zIndex: style.zIndex,
-      },
-      focusedIsInput: document.activeElement === input,
-      activeElement: document.activeElement?.className || document.activeElement?.tagName,
+      cursor: box(cursor),
+      focused: document.activeElement === input,
+      activeElement: document.activeElement
+        ? `${document.activeElement.tagName.toLowerCase()}.${document.activeElement.className}`
+        : 'none',
+      style: getComputedStyle(input).visibility,
     };
   });
 
-console.log('\n=== 2. 초기 상태 ===');
-let m = await measure();
-console.log(JSON.stringify(m, null, 2));
-report(m);
+  const fits =
+    Math.abs(m.input.x - m.cursor.x) <= 2 &&
+    Math.abs(m.input.y - m.cursor.y) <= 2 &&
+    Math.abs(m.input.w - m.cursor.w) <= 2 &&
+    Math.abs(m.input.h - m.cursor.h) <= 2;
+  check('입력창이 칸과 겹침', fits, `입력창 ${JSON.stringify(m.input)} / 칸 ${JSON.stringify(m.cursor)}`);
+  check('포커스가 입력창에 있음', m.focused, m.focused ? '' : `실제 포커스=${m.activeElement}`);
+  check('입력창이 화면에 존재', m.style === 'visible');
+}
 
-console.log('\n=== 3. 다른 칸 클릭 (force) ===');
-// 입력창이 현재 칸을 덮고 있으므로, 다른 칸을 골라 클릭한다.
-const otherCell = page.locator('#puzzle-grid button.cell').nth(3);
-const otherAt = await otherCell.evaluate((el) => `${el.dataset.row},${el.dataset.col}`);
-await otherCell.click({ force: true });
-await page.waitForTimeout(200);
-m = await measure();
-console.log(`클릭한 칸: ${otherAt} / 이동 후 커서: ${m.cursorAt} / 포커스=입력창: ${m.focusedIsInput}`);
-report(m);
+// ── 2. 조합 이벤트가 오는 경우 (데스크톱 IME) ────────────────────
+console.log('\n=== 2. 조합 이벤트가 오는 입력 (데스크톱 IME) ===');
+await newGame();
+{
+  const cells = await emptyCells();
+  const at = cells[0];
+  await cellAt(at).click({ force: true });
+  await page.waitForTimeout(150);
 
-console.log('\n=== 4. 한글 조합 시뮬레이션 ===');
-await page.evaluate(() => {
-  const input = document.querySelector('.grid__input');
-  input.focus();
-  const compose = (type, data) =>
-    input.dispatchEvent(new CompositionEvent(type, { data, bubbles: true }));
-  const type = (data) => input.dispatchEvent(new InputEvent('input', { data, bubbles: true }));
+  await page.evaluate(() => {
+    const input = document.querySelector('.grid__input');
+    input.focus();
+    input.dispatchEvent(new CompositionEvent('compositionstart', { data: '', bubbles: true }));
+    input.value = 'ㄱ';
+    input.dispatchEvent(new InputEvent('input', { data: 'ㄱ', bubbles: true }));
+    input.value = '가';
+    input.dispatchEvent(new InputEvent('input', { data: '가', bubbles: true }));
+  });
+  await page.waitForTimeout(150);
+  check('조합 중 글자가 입력창에 유지됨', (await inputValue()) === '가');
 
-  compose('compositionstart', '');
-  input.value = 'ㄱ';
-  compose('compositionupdate', 'ㄱ');
-  type('ㄱ');
-  input.value = '가';
-  compose('compositionupdate', '가');
-  type('가');
-});
-await page.waitForTimeout(200);
+  await page.evaluate(() => {
+    document
+      .querySelector('.grid__input')
+      .dispatchEvent(new CompositionEvent('compositionend', { data: '가', bubbles: true }));
+  });
+  await page.waitForTimeout(250);
+  check('확정 후 격자에 들어감', (await letterAt(at)) === '가', `칸 ${at}`);
+  check('입력창이 비워짐', (await inputValue()) === '');
+}
 
-const composing = await page.evaluate(() => {
-  const input = document.querySelector('.grid__input');
-  const cursorCell = document.querySelector('#puzzle-grid button[aria-current="true"]');
-  return {
-    inputValue: input?.value,
-    cellShows: cursorCell?.querySelector('.cell__letter')?.textContent ?? '',
-  };
-});
-console.log(`조합 중 → 입력창="${composing.inputValue}" / 칸 표시="${composing.cellShows}"`);
-console.log(
-  composing.inputValue === '가'
-    ? '  OK: 조합 글자가 입력창에 살아 있음 (화면에는 칸 위치에 보임)'
-    : '  문제: 입력창에 조합 글자가 없음',
-);
+// ── 3. 조합 이벤트가 오지 않는 경우 (iOS 방식) ───────────────────
+console.log('\n=== 3. 조합 이벤트 없는 입력 (iOS 한글 키보드 방식) ===');
+await newGame();
+{
+  const cells = await emptyCells();
+  const at = cells[0];
+  await cellAt(at).click({ force: true });
+  await page.waitForTimeout(150);
 
-console.log('\n=== 5. 조합 확정 ===');
-await page.evaluate(() => {
-  const input = document.querySelector('.grid__input');
-  input.dispatchEvent(new CompositionEvent('compositionend', { data: '가', bubbles: true }));
-});
-await page.waitForTimeout(300);
+  // compositionstart 없이 자모가 음절로 합쳐지는 과정만 흘려보낸다.
+  await page.evaluate(() => {
+    const input = document.querySelector('.grid__input');
+    input.focus();
+    const step = (value) => {
+      input.value = value;
+      input.dispatchEvent(new InputEvent('input', { data: value, bubbles: true }));
+    };
+    step('ㅅ');
+    step('사');
+    step('산');
+    step('사고'); // 다음 음절이 시작되면 앞 음절이 확정되어야 한다
+  });
+  await page.waitForTimeout(250);
 
-const committed = await page.evaluate(() => ({
-  filled: [...document.querySelectorAll('#puzzle-grid button.cell')]
-    .map((el) => ({ at: `${el.dataset.row},${el.dataset.col}`, ch: el.querySelector('.cell__letter')?.textContent }))
-    .filter((c) => c.ch),
-  inputValue: document.querySelector('.grid__input')?.value,
-}));
-console.log(`격자에 채워진 글자: ${JSON.stringify(committed.filled)}`);
-console.log(`입력창 비워짐: ${committed.inputValue === ''}`);
-console.log(
-  committed.filled.length > 0 ? '  OK: 격자에 글자가 들어감' : '  문제: 격자가 그대로임',
-);
+  check('첫 음절이 격자에 확정됨', (await letterAt(at)) === '사', `칸 ${at}`);
+  check('다음 음절은 입력창에 남음', (await inputValue()) === '고');
+}
 
-console.log('\n=== 6. 커서가 다음 칸으로 이동했는가 ===');
-m = await measure();
-console.log(`커서: ${m.cursorAt}`);
-report(m);
+// ── 4. 마지막 음절 자동 확정 ─────────────────────────────────────
+console.log('\n=== 4. 입력이 멎으면 마지막 음절도 확정 ===');
+await newGame();
+{
+  const cells = await emptyCells();
+  const at = cells[0];
+  await cellAt(at).click({ force: true });
+  await page.waitForTimeout(150);
+  await page.evaluate(() => {
+    const input = document.querySelector('.grid__input');
+    input.focus();
+    input.value = '물';
+    input.dispatchEvent(new InputEvent('input', { data: '물', bubbles: true }));
+  });
 
-console.log('\n=== 7. 실제 키보드로 연속 입력 ===');
-const target = page.locator('#puzzle-grid button.cell').nth(5);
-const targetAt = await target.evaluate((el) => `${el.dataset.row},${el.dataset.col}`);
-await target.click({ force: true });
-await page.waitForTimeout(150);
-await page.keyboard.insertText('사');
-await page.waitForTimeout(120);
-await page.keyboard.insertText('회');
-await page.waitForTimeout(250);
+  await page.waitForTimeout(400);
+  check('바로는 확정되지 않음 (받침 대기)', (await letterAt(at)) === '');
 
-const typed = await page.evaluate(() => ({
-  filled: [...document.querySelectorAll('#puzzle-grid button.cell')]
-    .map((el) => ({ at: `${el.dataset.row},${el.dataset.col}`, ch: el.querySelector('.cell__letter')?.textContent }))
-    .filter((c) => c.ch),
-  cursorAt: (() => {
-    const el = document.querySelector('#puzzle-grid button[aria-current="true"]');
-    return el ? `${el.dataset.row},${el.dataset.col}` : null;
-  })(),
-}));
-console.log(`시작 칸 ${targetAt} 에서 '사회' 입력`);
-console.log(`격자: ${JSON.stringify(typed.filled)}`);
-console.log(`커서: ${typed.cursorAt}`);
-console.log(
-  typed.filled.length >= 2 ? '  OK: 두 글자가 연속으로 들어감' : '  문제: 글자가 제대로 안 들어감',
-);
+  await page.waitForTimeout(1400); // idleCommitMs 경과
+  check('멈춘 뒤 스스로 확정됨', (await letterAt(at)) === '물', `칸 ${at}`);
+}
 
-console.log('\n=== 8. 한 글자만 치고 다른 칸으로 이동 (버려지지 않는지) ===');
-const cellA = page.locator('#puzzle-grid button.cell').nth(8);
-const atA = await cellA.evaluate((el) => `${el.dataset.row},${el.dataset.col}`);
-await cellA.click({ force: true });
-await page.waitForTimeout(150);
-// 조합 중 상태로 남겨 둔 채 다른 칸을 누른다.
-await page.evaluate(() => {
-  const input = document.querySelector('.grid__input');
-  input.focus();
-  input.dispatchEvent(new CompositionEvent('compositionstart', { data: '', bubbles: true }));
-  input.value = '물';
-  input.dispatchEvent(new InputEvent('input', { data: '물', bubbles: true }));
-});
-await page.waitForTimeout(120);
-await page.locator('#puzzle-grid button.cell').nth(12).click({ force: true });
-await page.waitForTimeout(250);
+// ── 5. 한 음절만 치고 다른 칸으로 이동 ───────────────────────────
+console.log('\n=== 5. 한 음절만 치고 다른 칸으로 이동해도 잃지 않음 ===');
+await newGame();
+{
+  const cells = await emptyCells();
+  const from = cells[0];
+  const to = cells[cells.length - 1];
+  await cellAt(from).click({ force: true });
+  await page.waitForTimeout(150);
 
-const kept = await page.evaluate(
-  (at) =>
-    [...document.querySelectorAll('#puzzle-grid button.cell')]
-      .find((el) => `${el.dataset.row},${el.dataset.col}` === at)
-      ?.querySelector('.cell__letter')?.textContent,
-  atA,
-);
-console.log(`칸 ${atA} 에 '물' 남아 있는가: ${JSON.stringify(kept)}`);
-console.log(kept === '물' ? '  OK: 조합 중이던 글자가 확정됨' : '  문제: 글자가 버려짐');
+  await page.evaluate(() => {
+    const input = document.querySelector('.grid__input');
+    input.focus();
+    input.dispatchEvent(new CompositionEvent('compositionstart', { data: '', bubbles: true }));
+    input.value = '별';
+    input.dispatchEvent(new InputEvent('input', { data: '별', bubbles: true }));
+  });
+  await page.waitForTimeout(120);
+  await cellAt(to).click({ force: true });
+  await page.waitForTimeout(250);
 
-if (logs.length > 0) {
-  console.log('\n=== 브라우저 콘솔 ===');
-  for (const line of logs.slice(0, 15)) console.log(line);
+  check('이동 전 칸에 글자가 남아 있음', (await letterAt(from)) === '별', `칸 ${from} → ${to}`);
+}
+
+// ── 6. 실제 키보드 입력 ──────────────────────────────────────────
+console.log('\n=== 6. 실제 키보드로 두 음절 연속 입력 ===');
+await newGame();
+{
+  const cells = await emptyCells();
+  const at = cells[0];
+  await cellAt(at).click({ force: true });
+  await page.waitForTimeout(150);
+  await page.keyboard.insertText('사');
+  await page.waitForTimeout(150);
+  await page.keyboard.insertText('회');
+  await page.waitForTimeout(1500); // 마지막 음절 자동 확정까지
+
+  const filled = await page.evaluate(
+    () =>
+      [...document.querySelectorAll('#puzzle-grid button.cell')].filter(
+        (el) => el.querySelector('.cell__letter')?.textContent,
+      ).length,
+  );
+  check('두 칸이 채워짐', filled >= 2, `채워진 칸 ${filled}개`);
+}
+
+const errors = logs.filter((l) => l.startsWith('[pageerror]'));
+if (errors.length > 0) {
+  console.log('\n=== 페이지 오류 ===');
+  for (const line of errors.slice(0, 10)) console.log(line);
+  failures += errors.length;
 }
 
 await page.screenshot({ path: 'dist/probe.png' });
-console.log('\n스크린샷: dist/probe.png');
 await browser.close();
 
-function report(m) {
-  if (!m.input || !m.cursorCell) {
-    console.log('  !! 입력창 또는 커서 칸을 찾지 못함');
-    return;
-  }
-  const dx = Math.abs(m.input.x - m.cursorCell.x);
-  const dy = Math.abs(m.input.y - m.cursorCell.y);
-  const dw = Math.abs(m.input.w - m.cursorCell.w);
-  const dh = Math.abs(m.input.h - m.cursorCell.h);
-  const ok = dx <= 2 && dy <= 2 && dw <= 2 && dh <= 2;
-  console.log(
-    `  입력창 vs 칸 → ${ok ? 'OK 정확히 겹침' : `어긋남 (dx=${dx} dy=${dy} dw=${dw} dh=${dh})`}`,
-  );
-}
+console.log(failures === 0 ? '\n전부 통과' : `\n실패 ${failures}건`);
+process.exit(failures === 0 ? 0 : 1);
