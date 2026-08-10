@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      interactive-widget=resizes-content:
+      안드로이드에서 가상 키보드가 열릴 때 레이아웃 뷰포트를 함께 줄여,
+      화면 하단에 고정된 문제 카드가 키보드에 가려지지 않게 한다.
+      iOS 는 이 값을 무시하므로 visualViewport 로 따로 처리한다. (useKeyboardInset)
+    -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content"
+    />
+    <meta name="theme-color" content="#faf8f4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#16141c" media="(prefers-color-scheme: dark)" />
+    <meta name="description" content="매번 새로운 퍼즐이 생성되는 한국어 가로세로 낱말퍼즐" />
+    <title>낱말퍼즐</title>
+    <!-- 테마 플래시(FOUC) 방지: 렌더 이전에 저장된 테마를 적용한다. -->
+    <script>
+      (function () {
+        try {
+          var key = 'nalmal:theme:v1';
+          var saved = localStorage.getItem(key);
+          var mode = saved ? JSON.parse(saved).mode : 'system';
+          var dark =
+            mode === 'dark' ||
+            (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

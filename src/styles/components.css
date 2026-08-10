@@ -1,0 +1,1087 @@
+/*
+ * 컴포넌트 스타일.
+ * 모바일 우선으로 작성하고, 넓은 화면에서만 미디어 쿼리로 확장한다. (요구사항 42)
+ * 색상·간격·애니메이션 값은 전부 tokens.css 의 변수를 참조한다.
+ */
+
+/* ── 앱 레이아웃 ─────────────────────────────────────────────── */
+.app {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom));
+  min-height: 100dvh;
+}
+
+.app--center {
+  display: grid;
+  place-items: center;
+}
+
+/* ── 버튼 ───────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-5);
+  min-height: 48px;
+  border-radius: var(--radius-md);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  transition:
+    background var(--duration-fast) ease,
+    transform var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
+  border: 1px solid transparent;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn--secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  border-color: var(--border-strong);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--surface-muted);
+}
+
+.btn--danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn--sm {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.btn--lg {
+  min-height: 56px;
+  font-size: var(--text-lg);
+}
+
+.btn--block {
+  display: flex;
+  width: 100%;
+}
+
+/* ── 테마 토글 ──────────────────────────────────────────────── */
+.theme-toggle {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  background: var(--surface-muted);
+  font-size: var(--text-lg);
+  transition: background var(--duration-fast) ease;
+}
+
+.theme-toggle:hover {
+  background: var(--surface-sunken);
+}
+
+/* ── 시작 화면 ──────────────────────────────────────────────── */
+.start {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-top: var(--space-4);
+  animation: fade-up var(--duration-base) var(--ease-out);
+}
+
+.start__theme {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.start__hero {
+  text-align: center;
+}
+
+.start__eyebrow {
+  color: var(--accent);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.06em;
+}
+
+.start__title {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.04em;
+  margin: var(--space-2) 0;
+  /* 신문 제호 느낌의 얇은 구분선 */
+  padding-bottom: var(--space-3);
+  border-bottom: 3px double var(--border-strong);
+  display: inline-block;
+}
+
+.start__subtitle {
+  color: var(--text-muted);
+  font-size: var(--text-base);
+  margin-top: var(--space-3);
+}
+
+.start__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ── 기록 ───────────────────────────────────────────────────── */
+.records {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.records__title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: var(--space-3);
+}
+
+.records__empty {
+  color: var(--text-faint);
+  font-size: var(--text-sm);
+}
+
+.records__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.records__item {
+  display: grid;
+  grid-template-columns: 24px 1fr auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: var(--text-sm);
+}
+
+.records__item:last-child {
+  border-bottom: none;
+}
+
+.records__rank {
+  color: var(--text-faint);
+  font-weight: var(--weight-bold);
+}
+
+.records__score {
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.records__time {
+  color: var(--text-muted);
+  font-family: var(--font-numeric);
+  font-size: var(--text-xs);
+}
+
+.records__status {
+  color: var(--text-faint);
+  font-size: var(--text-xs);
+}
+
+.records__status--clear {
+  color: var(--success);
+  font-weight: var(--weight-bold);
+}
+
+/* ── 게임 화면 ──────────────────────────────────────────────── */
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  /* 키보드가 올라와도 격자를 위로 스크롤할 수 있도록 여백을 확보한다. */
+  padding-bottom: calc(var(--space-6) + var(--keyboard-inset, 0px));
+}
+
+.game__header {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.game__back {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+}
+
+.game__back:hover {
+  background: var(--surface-muted);
+}
+
+.game__title-group {
+  text-align: center;
+}
+
+.game__title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-black);
+  letter-spacing: -0.03em;
+}
+
+.game__difficulty {
+  display: inline-block;
+  font-size: var(--text-xs);
+  color: var(--accent);
+  font-weight: var(--weight-bold);
+}
+
+.game__notice {
+  background: var(--accent-soft);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.game__board {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.game__clues {
+  display: none;
+}
+
+.game__paused {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-4);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(4px);
+  z-index: 20;
+  font-weight: var(--weight-bold);
+}
+
+/* ── 말풍선 문제 카드 (요구사항 22) ─────────────────────────── */
+/*
+ * 선택한 칸 옆에 붙는 팝업. 위치는 CluePopover 가 계산해 인라인으로 넣는다.
+ * fixed 인 이유: 격자가 가로 스크롤되는 컨테이너 안에 있어도 잘리지 않아야 한다.
+ */
+.clue-pop {
+  position: fixed;
+  z-index: 30;
+  width: max-content;
+  max-width: min(320px, calc(100vw - 24px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  animation: fade-up var(--duration-fast) var(--ease-out);
+}
+
+/* 말풍선 꼬리. 놓인 방향에 따라 네 변 중 하나에 붙는다. */
+.clue-pop__arrow {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  transform: rotate(45deg);
+}
+
+/* 낱말 위쪽에 놓임 → 꼬리는 아래를 향한다. */
+.clue-pop--top .clue-pop__arrow {
+  left: var(--arrow-offset, 50%);
+  margin-left: -6px;
+  bottom: -7px;
+  border-top: none;
+  border-left: none;
+}
+
+/* 낱말 아래쪽에 놓임 → 꼬리는 위를 향한다. */
+.clue-pop--bottom .clue-pop__arrow {
+  left: var(--arrow-offset, 50%);
+  margin-left: -6px;
+  top: -7px;
+  border-bottom: none;
+  border-right: none;
+}
+
+/* 낱말 오른쪽에 놓임 → 꼬리는 왼쪽을 향한다. (세로 낱말에서 주로 쓰인다) */
+.clue-pop--right .clue-pop__arrow {
+  top: var(--arrow-offset, 50%);
+  margin-top: -6px;
+  left: -7px;
+  border-top: none;
+  border-right: none;
+}
+
+/* 낱말 왼쪽에 놓임 → 꼬리는 오른쪽을 향한다. */
+.clue-pop--left .clue-pop__arrow {
+  top: var(--arrow-offset, 50%);
+  margin-top: -6px;
+  right: -7px;
+  border-bottom: none;
+  border-left: none;
+}
+
+.clue-pop__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.clue-pop__badge {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-radius: var(--radius-full);
+  padding: 2px var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+
+.clue-pop__length {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.clue-pop__solved {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--success);
+}
+
+.clue-pop__text {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.clue-pop__initials {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.clue-pop__initials-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.clue-pop__initials-value {
+  letter-spacing: 0.35em;
+  font-weight: var(--weight-bold);
+  color: var(--secondary);
+}
+
+.clue-pop__hint {
+  align-self: flex-start;
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
+.clue-pop__hint:disabled {
+  opacity: 0.5;
+}
+
+.clue-pop__hint-count {
+  font-weight: var(--weight-normal);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* ── 상태 바 ────────────────────────────────────────────────── */
+.status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.status-bar__mistakes {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.status-bar__dots {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  transition: background var(--duration-fast) ease;
+}
+
+.dot--filled {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.status-bar__stats {
+  display: flex;
+  gap: var(--space-4);
+  margin-left: auto;
+}
+
+.status-bar__stat {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.status-bar__label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.status-bar__value {
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.status-bar__value--time {
+  font-family: var(--font-numeric);
+}
+
+.status-bar__progress {
+  flex-basis: 100%;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.status-bar__progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+  transition: width var(--duration-base) var(--ease-out);
+}
+
+/* ── 퍼즐 격자 (요구사항 20·42) ─────────────────────────────── */
+.grid-wrap {
+  display: flex;
+  justify-content: center;
+  /* 칸이 너무 작아지지 않도록, 화면이 좁으면 가로 스크롤을 허용한다. */
+  overflow-x: auto;
+  padding: var(--space-2);
+  -webkit-overflow-scrolling: touch;
+}
+
+.grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(36px, 1fr));
+  /* 행도 명시해 두어 어떤 칸이 있든 격자 크기가 흔들리지 않게 한다. */
+  grid-template-rows: repeat(var(--rows), auto);
+  gap: 3px;
+  /* 데스크톱에서 칸이 지나치게 커지지 않게 상한을 둔다. */
+  width: min(100%, calc(var(--cols) * 54px));
+  min-width: calc(var(--cols) * 36px);
+}
+
+.cell {
+  position: relative;
+  aspect-ratio: 1;
+  /* 전역 button 규칙의 min-height 를 무효화해 항상 정사각형을 유지한다. */
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  background: var(--cell-bg);
+  border: 1.5px solid var(--cell-border);
+  box-shadow: var(--cell-shadow);
+  color: var(--cell-text);
+  font-size: clamp(0.95rem, 4.4vw, 1.4rem);
+  font-weight: var(--weight-bold);
+  transition:
+    background var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
+}
+
+.cell--block {
+  background: var(--cell-block);
+  border: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/*
+ * 선택된 낱말: 글자 수만큼 **모든 칸이 완전히 동일한** 배경과 테두리를 갖는다.
+ * 누른 칸을 따로 진하게 표시하지 않는다 — 칸마다 진하기가 다르면 조잡해 보이고,
+ * 어느 낱말이 선택됐는지가 오히려 잘 안 읽힌다.
+ * 현재 입력 위치는 글자가 채워지는 순서로 자연스럽게 드러난다.
+ *
+ * 테두리는 border 로만 그린다. 바깥으로 번지는 box-shadow 를 쓰면
+ * 3px 간격을 넘어 옆칸까지 물든 것처럼 보인다.
+ */
+.cell--in-word {
+  background: var(--cell-word-bg);
+  border-color: var(--cell-cursor-ring);
+  border-width: 2px;
+  z-index: 1;
+}
+
+.cell--locked .cell__letter {
+  color: var(--cell-locked-text);
+}
+
+.cell--solved {
+  background: var(--cell-solved-bg);
+  border-color: var(--success);
+  animation: pop var(--duration-solve) var(--ease-out);
+}
+
+.cell--solved .cell__letter {
+  color: var(--success);
+}
+
+/* 오답: 빨간색으로 강조하고 해당 낱말의 칸들이 함께 흔들린다. (요구사항 27) */
+.cell--wrong {
+  background: var(--cell-wrong-bg);
+  border-color: var(--danger);
+  z-index: 2;
+  animation: shake var(--duration-shake) ease;
+}
+
+/* .cell--locked .cell__letter 보다 뒤에 두어 오답 색이 이기도록 한다. */
+.cell--wrong .cell__letter {
+  color: var(--cell-wrong-text);
+}
+
+.cell__number {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  font-size: 0.55rem;
+  font-weight: var(--weight-medium);
+  color: var(--text-faint);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.cell__letter {
+  line-height: 1;
+  pointer-events: none;
+}
+
+/*
+ * 현재 칸을 덮는 입력창. 실제 키 입력을 전부 이 요소가 받는다.
+ *
+ * position: absolute 인 이유 — grid 아이템으로 두면 CSS Grid 자동 배치가
+ * 다른 칸들을 한 칸씩 밀어낸다. 위치는 JS 가 현재 칸을 재서 직접 지정한다.
+ *
+ * opacity 나 pointer-events 로 숨기지 않는 이유 — 모바일 브라우저는 보이지 않거나
+ * 탭을 받지 못하는 입력창에 대해 가상 키보드를 열지 않는 경우가 많다.
+ * 대신 배경을 투명하게, 글자 모양을 칸과 똑같이 맞춰 티가 나지 않게 한다.
+ * 조합 중인 한글은 이 입력창이 그대로 그려 주므로 칸 안에 입력되는 것처럼 보인다.
+ */
+/*
+ * 입력창이 들어갈 자리. 현재 칸의 격자 영역을 그대로 차지한다.
+ *
+ * 빈 div 는 격자 아이템으로서 영역을 가득 채우는 것이 보장된다.
+ * 반면 <input> 을 직접 격자 아이템으로 두면 고유 크기(약 150x20px) 때문에
+ * 브라우저마다 결과가 달라져 칸을 벗어난다. 실제로 겪은 버그다.
+ */
+.grid__input-slot {
+  position: relative;
+  z-index: 4;
+  min-width: 0;
+  min-height: 0;
+}
+
+.grid__input {
+  /* 자리 div 를 정확히 가득 채운다. */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+
+  /* 칸(.cell)의 글자 모양과 정확히 일치시킨다. */
+  text-align: center;
+  color: var(--cell-text);
+  font-family: inherit;
+  font-weight: var(--weight-bold);
+  /* iOS 는 16px 미만 입력창에 포커스가 가면 화면을 확대한다. */
+  font-size: max(16px, clamp(0.95rem, 4.4vw, 1.4rem));
+  /* 현재 위치는 낱말 테두리로 충분히 드러나므로 깜빡이는 커서는 감춘다. */
+  caret-color: transparent;
+}
+
+/* ── 문제 목록 ──────────────────────────────────────────────── */
+.clue-list__title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--border-strong);
+  margin-bottom: var(--space-2);
+}
+
+.clue-item {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  gap: var(--space-2);
+  align-items: baseline;
+  width: 100%;
+  text-align: left;
+  padding: var(--space-2);
+  min-height: 40px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  transition: background var(--duration-fast) ease;
+}
+
+.clue-item:hover {
+  background: var(--surface-muted);
+}
+
+.clue-item--active {
+  background: var(--accent-soft);
+  font-weight: var(--weight-bold);
+}
+
+.clue-item--solved .clue-item__text {
+  color: var(--text-faint);
+  text-decoration: line-through;
+}
+
+.clue-item__number {
+  color: var(--accent);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.clue-item__meta {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+/* ── 모달 / 힌트 (요구사항 26·42) ───────────────────────────── */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(20, 16, 10, 0.45);
+  animation: fade-up var(--duration-base) var(--ease-out);
+}
+
+.modal__panel {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--space-4) var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom));
+  box-shadow: var(--shadow-lg);
+  max-height: 85dvh;
+  overflow-y: auto;
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.modal__title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+
+.modal__close {
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  border-radius: var(--radius-full);
+  color: var(--text-muted);
+}
+
+.hint-panel__remaining {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.hint-panel__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.hint-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  min-height: 64px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  transition: border-color var(--duration-fast) ease;
+}
+
+.hint-option:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.hint-option:disabled {
+  opacity: 0.55;
+}
+
+.hint-option__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hint-option__label {
+  font-weight: var(--weight-bold);
+}
+
+.hint-option__desc {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.hint-option__cost {
+  font-weight: var(--weight-bold);
+  color: var(--danger);
+  white-space: nowrap;
+}
+
+.hint-option__cost--free {
+  color: var(--success);
+}
+
+/* ── 결과 화면 ──────────────────────────────────────────────── */
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  animation: fade-up var(--duration-base) var(--ease-out);
+}
+
+.result__header {
+  text-align: center;
+  padding-top: var(--space-5);
+}
+
+.result__badge {
+  display: inline-block;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+.result__badge--clear {
+  color: var(--accent);
+}
+
+.result__score {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-black);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  margin-top: var(--space-2);
+}
+
+.result__score-label {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.result__reason {
+  margin-top: var(--space-3);
+  color: var(--danger);
+  font-size: var(--text-sm);
+}
+
+.result__stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.result__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.result__stat dt {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.result__stat dd {
+  margin: 0;
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.result__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.result__home {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── 공유 ───────────────────────────────────────────────────── */
+.share {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.share__buttons {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.share__message {
+  font-size: var(--text-sm);
+  color: var(--secondary);
+}
+
+/* ── 로딩 / 오류 ────────────────────────────────────────────── */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  color: var(--text-muted);
+}
+
+.loading__spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  border: 3px solid var(--surface-sunken);
+  border-top-color: var(--accent);
+  animation: spin 800ms linear infinite;
+}
+
+.error-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: center;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  max-width: 420px;
+}
+
+/* ── 태블릿 이상 ────────────────────────────────────────────── */
+@media (min-width: 720px) {
+  .app {
+    padding: var(--space-5);
+  }
+
+  .start__title {
+    font-size: 3rem;
+  }
+
+  .result__stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+}
+
+/* ── 실기기 진단 패널 (?debug=1 일 때만) ────────────────────── */
+.debug {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--keyboard-inset, 0px);
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.86);
+  color: #d7ffd7;
+  font-family: var(--font-numeric);
+  font-size: 11px;
+  line-height: 1.5;
+  max-height: 42vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.debug__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 6px var(--space-3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.debug__bar button {
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: 11px;
+}
+
+.debug__list {
+  overflow-y: auto;
+  padding: 6px var(--space-3) calc(6px + env(safe-area-inset-bottom));
+}
+
+.debug__list li {
+  padding: 1px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  word-break: break-all;
+}
+
+/* ── 데스크톱: 가로 힌트 · 퍼즐 · 세로 힌트 3단 배치 (요구사항 16) ── */
+@media (min-width: 900px) {
+  .game__board {
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr) auto minmax(200px, 1fr);
+    align-items: start;
+    gap: var(--space-5);
+  }
+
+  .game__clues {
+    display: block;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: var(--space-2);
+  }
+
+  .grid {
+    width: calc(var(--cols) * 48px);
+  }
+}
+
+/*
+ * 좁은 화면: 퍼즐이 가장 먼저 보여야 한다.
+ * 문제 목록을 위에 두면 퍼즐이 화면 아래로 밀려 스크롤해야 보인다. (요구사항 42)
+ * 현재 문제는 말풍선이 바로 알려 주므로, 목록은 훑어보기용으로 아래에 둔다.
+ */
+@media (max-width: 899px) {
+  .game__board {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .game__grid {
+    order: 0;
+  }
+
+  .game__clues {
+    display: block;
+    order: 1;
+  }
+
+  /* 목록이 지나치게 길어지지 않도록 자체 스크롤을 준다. */
+  .game__clues .clue-list {
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+}
