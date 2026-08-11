@@ -313,6 +313,17 @@
 .clue-pop {
   position: fixed;
   z-index: 30;
+  /*
+   * ⚠️ 말풍선은 탭을 가로채면 안 된다.
+   *
+   * 격자 위에 떠 있어서, 탭을 받으면 아래에 있는 칸을 누를 수 없다.
+   * 그러면 칸이 선택되지 않고 입력창은 포커스를 잃어
+   * "키보드는 올라와 있는데 글자가 안 쳐지는" 상태가 된다. (실제 겪은 버그)
+   * 화면이 좁은 휴대폰에서 말풍선이 칸을 더 많이 덮으므로 특히 잘 나타난다.
+   *
+   * 말풍선은 정보 표시용이므로 통과시키고, 힌트 버튼만 따로 탭을 받는다.
+   */
+  pointer-events: none;
   width: max-content;
   max-width: min(320px, calc(100vw - 24px));
   display: flex;
@@ -423,25 +434,35 @@
   color: var(--secondary);
 }
 
-.clue-pop__hint {
-  align-self: flex-start;
+/* ── 힌트 버튼 (격자 밖 고정 위치) ──────────────────────────── */
+.game__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hint-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   min-height: 40px;
   padding: 0 var(--space-4);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface-muted);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
 }
 
-.clue-pop__hint:disabled {
-  opacity: 0.5;
+.hint-button:disabled {
+  opacity: 0.45;
 }
 
-.clue-pop__hint-count {
+.hint-button__count {
   font-weight: var(--weight-normal);
   font-size: var(--text-xs);
   color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── 상태 바 ────────────────────────────────────────────────── */

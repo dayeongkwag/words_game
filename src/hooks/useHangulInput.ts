@@ -125,8 +125,13 @@ export function useHangulInput(
        * 마지막 음절은 다음 글자를 쳐야 확정된다. 낱말의 끝 글자를 치고 멈추면
        * 확정이 안 되어 채점이 일어나지 않으므로, 입력이 멎으면 스스로 확정한다.
        * 받침을 덧붙이는 시간(보통 0.3초 이내)보다 넉넉하게 잡는다.
+       *
+       * ⚠️ 조합 중에는 이 타이머를 걸지 않는다.
+       * 확정 과정에서 입력창 값을 비우는데, IME 가 조합 중일 때 값을 건드리면
+       * 그 시점부터 IME 의 내부 상태와 어긋나 이후 입력이 먹히지 않을 수 있다.
+       * 조합 중인 글자는 compositionend / 다른 칸 선택 / 포커스 해제에서 확정된다.
        */
-      if (pending) {
+      if (pending && !composingRef.current) {
         idleTimerRef.current = window.setTimeout(() => {
           idleTimerRef.current = null;
           flush(elementRef.current);

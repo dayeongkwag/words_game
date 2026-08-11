@@ -67,6 +67,25 @@ export function GameScreen({
         progress={getProgress(state)}
       />
 
+      {/*
+        힌트 버튼은 격자 밖 고정 위치에 둔다.
+        말풍선 안에 두면 격자 위에 떠서 그 아래 칸의 탭을 가로채고,
+        그러면 칸 선택과 입력 포커스가 함께 깨진다. (요구사항 16)
+      */}
+      <div className="game__actions">
+        <button
+          type="button"
+          className="hint-button"
+          onClick={() => setHintOpen(true)}
+          disabled={!hints.canUse || selectedSolved || !selectedClue}
+        >
+          힌트 사용
+          <span className="hint-button__count">
+            {hints.remaining}/{hints.max}
+          </span>
+        </button>
+      </div>
+
       <div className="game__board">
         <div className="game__clues game__clues--left">
           <ClueList
@@ -122,9 +141,6 @@ export function GameScreen({
             ? state.revealedInitials[state.selectedWordIndex]
             : undefined
         }
-        hintsRemaining={hints.remaining}
-        canUseHint={hints.canUse}
-        onOpenHints={() => setHintOpen(true)}
       />
 
       <HintPanel

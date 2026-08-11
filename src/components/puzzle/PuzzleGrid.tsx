@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { UI_CONFIG } from '@/config';
 import { useHangulInput } from '@/hooks/useHangulInput';
 import type { GameState, PuzzleView } from '@/types';
-import { logDebug } from '@/utils/debugLog';
+import { isDebugEnabled, logDebug } from '@/utils/debugLog';
 
 interface PuzzleGridProps {
   view: PuzzleView;
@@ -83,6 +83,24 @@ export function PuzzleGrid({
     }
     input.focus({ preventScroll: true });
     logDebug(`focus() 호출 → 성공=${document.activeElement === input}`);
+  }, []);
+
+  /*
+   * 진단용 이벤트 추적.
+   * 모바일 입력이 어느 단계에서 끊기는지 보려면 실제 기기에서 이벤트 순서를 봐야 한다.
+   * isDebugEnabled() 가 false 면(프로덕션 빌드) 아무 핸들러도 붙지 않는다.
+   */
+  const traceProps = useMemo(() => {
+    if (!isDebugEnabled()) return {};
+    const value = (event: { currentTarget: HTMLInputElement }) =>
+      JSON.stringify(event.currentTarget.value);
+    return {
+      onBeforeInput: (e: React.FormEvent<HTMLInputElement>) =>
+        logDebug(`beforeinput data=${JSON.stringify((e.nativeEvent as InputEvent).data)} value=${value(e)}`),
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => logDebug(`change value=${value(e)}`),
+      onKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) =>
+        logDebug(`keyup key=${e.key} value=${value(e)}`),
+    };
   }, []);
 
   // 퍼즐이 바뀌면 입력 버퍼를 비운다.
@@ -263,10 +281,11 @@ export function PuzzleGrid({
             spellCheck={false}
             aria-label="글자 입력"
             onPointerDown={handleInputPointerDown}
-            onFocus={() => logDebug('입력창 focus 됨')}
+            onFocus={() => logDebug(`focus 됨 (커서 ${cursorRow},${cursorCol})`)}
             onBlur={handleInputBlur}
             onKeyDown={handleKeyDown}
             {...inputProps}
+            {...traceProps}
           />
         </div>
       </div>

@@ -9,9 +9,6 @@ interface CluePopoverProps {
   anchorCol: number;
   /** 초성 힌트를 사용했다면 그 초성 문자열. */
   initials?: string;
-  hintsRemaining: number;
-  canUseHint: boolean;
-  onOpenHints: () => void;
 }
 
 /** 말풍선이 낱말의 어느 쪽에 놓였는지. 꼬리 방향을 결정한다. */
@@ -61,9 +58,6 @@ export function CluePopover({
   anchorRow,
   anchorCol,
   initials,
-  hintsRemaining,
-  canUseHint,
-  onOpenHints,
 }: CluePopoverProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [placement, setPlacement] = useState<Placement | null>(null);
@@ -232,17 +226,12 @@ export function CluePopover({
         </p>
       )}
 
-      {!solved && (
-        <button
-          type="button"
-          className="clue-pop__hint"
-          onClick={onOpenHints}
-          disabled={!canUseHint}
-        >
-          힌트 <span className="clue-pop__hint-count">{hintsRemaining}회 남음</span>
-        </button>
-      )}
-
+      {/*
+        누를 수 있는 요소를 여기에 두지 않는다.
+        말풍선은 격자 위에 떠 있어서 버튼이 있으면 그 아래 칸의 탭을 가로챈다.
+        칸이 선택되지 않고 입력창은 포커스를 잃어 "키보드는 떠 있는데 글자가 안 쳐지는"
+        상태가 된다. 힌트 버튼은 상태 바에 둔다. (GameScreen)
+      */}
       <span className="clue-pop__arrow" aria-hidden="true" />
     </div>
   );
