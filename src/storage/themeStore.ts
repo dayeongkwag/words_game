@@ -34,10 +34,16 @@ export function resolveTheme(mode: ThemeMode): ResolvedTheme {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
+/** 브라우저 UI(주소창) 색. tokens.css 의 --bg 와 같은 값이어야 한다. */
+const THEME_COLOR: Record<ResolvedTheme, string> = {
+  light: '#f2f3f6',
+  dark: '#16141c',
+};
+
 /** <html data-theme="..."> 를 갱신한다. */
 export function applyTheme(theme: ResolvedTheme): void {
   if (typeof document === 'undefined') return;
   document.documentElement.dataset.theme = theme;
   const meta = document.querySelector('meta[name="theme-color"]:not([media])');
-  if (meta) meta.setAttribute('content', theme === 'dark' ? '#16141c' : '#faf8f4');
+  if (meta) meta.setAttribute('content', THEME_COLOR[theme]);
 }

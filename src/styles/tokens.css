@@ -50,55 +50,63 @@
   --duration-solve: 520ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* ── 라이트 모드 색상 (요구사항 19) ─────────────────────────── */
-  --bg: #faf8f4;
+  /* ── 라이트 모드 색상 (요구사항 19) ─────────────────────────────
+   * 순백이 아닌 살짝 차가운 회백색을 바탕으로 쓰고, 카드만 흰색으로 띄운다.
+   * 이 대비가 "완전 화이트"보다 깔끔하고 정돈된 인상을 준다.
+   * 회색에는 포인트 컬러 쪽으로 아주 옅은 청보라 기운을 넣어,
+   * 무채색이 따로 노는 느낌 없이 한 벌로 읽히게 했다.
+   * 포인트 컬러는 다크 모드의 보라와 같은 계열이라 두 테마가 한 시스템으로 이어진다.
+   */
+  --bg: #f2f3f6;
   --bg-elevated: #ffffff;
   --surface: #ffffff;
-  --surface-muted: #f1ede4;
-  --surface-sunken: #e9e4d8;
+  --surface-muted: #eceef2;
+  --surface-sunken: #e2e5eb;
 
-  --text: #1f1c17;
-  --text-muted: #6d6559;
-  --text-faint: #9a9184;
-  --text-inverse: #fdfcfa;
+  --text: #1a1c23;
+  --text-muted: #5c616e;
+  --text-faint: #636a78;
+  --text-inverse: #ffffff;
 
-  --border: #ddd5c6;
-  --border-strong: #b9ae9a;
+  --border: #dcdfe6;
+  --border-strong: #b6bbc7;
 
-  --accent: #d3502a;
-  --accent-hover: #ba4423;
-  --accent-soft: #fbe8e0;
+  --accent: #5b5bd6;
+  --accent-hover: #4a4ac2;
+  --accent-soft: #e9e9fb;
   --accent-contrast: #ffffff;
 
-  --secondary: #2f6f6b;
-  --secondary-soft: #ddeceb;
+  --secondary: #9a4708;
+  --secondary-soft: #fbeee0;
 
-  --success: #2f7a45;
-  --success-soft: #dcefe1;
-  --danger: #c22e35;
-  --danger-soft: #fbe1e2;
-  --warning: #a8730d;
+  --success: #146c34;
+  --success-soft: #e3f4e9;
+  --danger: #c92a3a;
+  --danger-soft: #fceaec;
+  --warning: #9a4708;
 
   /* 퍼즐 칸 (요구사항 20) */
   --cell-bg: #ffffff;
-  --cell-border: #c9bfa9;
-  --cell-text: #1f1c17;
-  --cell-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.06), 0 1px 1px rgba(60, 50, 30, 0.08);
+  --cell-border: #cbd0da;
+  --cell-text: #1a1c23;
+  --cell-shadow: inset 0 -2px 0 rgba(26, 28, 35, 0.05), 0 1px 1px rgba(26, 28, 35, 0.06);
   --cell-block: transparent;
 
-  --cell-word-bg: #fdf0d9;
-  --cell-cursor-bg: #f8d99a;
-  --cell-cursor-ring: #d3502a;
-  --cell-locked-text: #2f6f6b;
-  --cell-solved-bg: #e4f2e6;
-  --cell-wrong-bg: #fbe1e2;
-  --cell-wrong-text: #c22e35;
+  --cell-word-bg: #e9e9fb;
+  --cell-cursor-bg: #e9e9fb;
+  --cell-cursor-ring: #5b5bd6;
+  --cell-locked-text: #9a4708;
+  --cell-solved-bg: #e3f4e9;
+  --cell-wrong-bg: #fceaec;
+  --cell-wrong-text: #c92a3a;
 
-  --shadow-sm: 0 1px 2px rgba(45, 38, 24, 0.08);
-  --shadow-md: 0 4px 14px rgba(45, 38, 24, 0.1);
-  --shadow-lg: 0 12px 34px rgba(45, 38, 24, 0.16);
+  --overlay: rgba(26, 28, 35, 0.42);
 
-  --focus-ring: 0 0 0 3px rgba(211, 80, 42, 0.35);
+  --shadow-sm: 0 1px 2px rgba(26, 28, 40, 0.06);
+  --shadow-md: 0 4px 14px rgba(26, 28, 40, 0.08);
+  --shadow-lg: 0 12px 34px rgba(26, 28, 40, 0.14);
+
+  --focus-ring: 0 0 0 3px rgba(91, 91, 214, 0.35);
 }
 
 /* ── 다크 모드 색상 (요구사항 19: 보라/주황 계열 포인트) ────────── */
@@ -111,7 +119,8 @@
 
   --text: #f0ecf5;
   --text-muted: #a9a1b8;
-  --text-faint: #7b7389;
+  /* 4.5:1 을 넘기기 위해 밝기를 올렸다. (요구사항 44 — 충분한 색상 대비) */
+  --text-faint: #8a8199;
   --text-inverse: #16141c;
 
   --border: #3a3446;
@@ -144,6 +153,8 @@
   --cell-solved-bg: #24382c;
   --cell-wrong-bg: #452229;
   --cell-wrong-text: #f87f86;
+
+  --overlay: rgba(8, 6, 12, 0.6);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);

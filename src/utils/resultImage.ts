@@ -166,15 +166,16 @@ interface Palette {
   border: string;
 }
 
+// tokens.css 의 라이트 모드 값과 맞춘다. (캔버스는 CSS 변수를 쓸 수 없어 따로 둔다)
 const LIGHT: Palette = {
-  bg: '#efe9dc',
+  bg: '#e6e8ee',
   surface: '#ffffff',
-  text: '#1f1c17',
-  muted: '#6d6559',
-  accent: '#d3502a',
-  accentSoft: '#fbe8e0',
-  cell: '#f7f4ee',
-  border: '#ddd5c6',
+  text: '#1a1c23',
+  muted: '#5c616e',
+  accent: '#5b5bd6',
+  accentSoft: '#e9e9fb',
+  cell: '#f2f3f6',
+  border: '#dcdfe6',
 };
 
 const DARK: Palette = {
